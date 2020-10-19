@@ -2,7 +2,7 @@
 using System.Text;
 using UnityEngine;
 
-namespace Sensors.Runtime
+namespace CollisionSensors.Runtime
 {
     public class CollisionSensor<T> : MonoBehaviour
         where T : MonoBehaviour
