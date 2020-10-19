@@ -1,0 +1,16 @@
+{
+    "name": "Sensors",
+    "references": [
+        "GUID:8299829984cebac429a17c9972b3385e",
+        "GUID:ed96101c8ed74db49a3d04c3bf7ddf66"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
