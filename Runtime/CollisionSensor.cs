@@ -33,7 +33,11 @@ namespace CollisionSensors.Runtime
             Items = new Dictionary<int, T>();
         }
 
-        protected virtual bool Reject(T item)
+        protected virtual bool RejectItem(T item)
+        {
+            return false;
+        }
+        protected virtual bool RejectCollider(Collider other)
         {
             return false;
         }
@@ -48,13 +52,23 @@ namespace CollisionSensors.Runtime
 
         private void OnTriggerEnter(Collider other)
         {
+            if (other == null)
+            {
+                return;
+            }
+
+            if (RejectCollider(other))
+            {
+                return;
+            }
+
             var item = other.GetComponentInParent<T>();
             if (item == null)
             {
                 return;
             }
 
-            if (Reject(item))
+            if (RejectItem(item))
             {
                 return;
             }
@@ -72,13 +86,23 @@ namespace CollisionSensors.Runtime
 
         private void OnTriggerExit(Collider other)
         {
+            if (other == null)
+            {
+                return;
+            }
+
+            if (RejectCollider(other))
+            {
+                return;
+            }
+
             var item = other.GetComponentInParent<T>();
             if (item == null)
             {
                 return;
             }
 
-            if (Reject(item))
+            if (RejectItem(item))
             {
                 return;
             }
@@ -93,6 +117,7 @@ namespace CollisionSensors.Runtime
             }
         }
 
+       
         private void UpdateDebug()
         {
 #if UNITY_EDITOR
