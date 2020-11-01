@@ -1,16 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
 namespace CollisionSensors.Runtime
 {
-    public class CollisionSensor<T> : MonoBehaviour
+    public class CollisionSensor<T> : MonoBehaviour, ICollisionSensor
         where T : MonoBehaviour
     {
-        public delegate void CollisionHandler();
-
-        public CollisionHandler delCollisionEnter;
-        public CollisionHandler delCollisionExit;
+        public Action CallbackCollisionEnter { get; set; }
+        public Action CallbackCollisionExit { get; set; }
         public int Count => Items.Count;
         public Dictionary<int, T> Items { get; set; }
 
@@ -56,7 +55,7 @@ namespace CollisionSensors.Runtime
             {
                 Items[id] = item;
                 OnItemAdded(item);
-                delCollisionEnter?.Invoke();
+                CallbackCollisionEnter?.Invoke();
             }
 
             UpdateDebug();
@@ -76,7 +75,7 @@ namespace CollisionSensors.Runtime
                 Items.Remove(id);
                 OnItemRemoved((item));
                 UpdateDebug();
-                delCollisionExit?.Invoke();
+                CallbackCollisionExit?.Invoke();
             }
         }
 
