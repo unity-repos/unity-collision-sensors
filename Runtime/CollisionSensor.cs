@@ -11,6 +11,7 @@ namespace CollisionSensors.Runtime
 
         public CollisionHandler delCollisionEnter;
         public CollisionHandler delCollisionExit;
+        public int Count => Items.Count;
         public Dictionary<int, T> Items { get; set; }
 
         [SerializeField] [TextArea] private string debugSensor;
