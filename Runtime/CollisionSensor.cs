@@ -7,6 +7,10 @@ namespace CollisionSensors.Runtime
     public class CollisionSensor<T> : MonoBehaviour
         where T : MonoBehaviour
     {
+        public delegate void CollisionHandler();
+
+        public CollisionHandler delCollisionEnter;
+        public CollisionHandler delCollisionExit;
         public Dictionary<int, T> Items { get; set; }
 
         [SerializeField] [TextArea] private string debugSensor;
@@ -51,6 +55,7 @@ namespace CollisionSensors.Runtime
             {
                 Items[id] = item;
                 OnItemAdded(item);
+                delCollisionEnter?.Invoke();
             }
 
             UpdateDebug();
@@ -70,6 +75,7 @@ namespace CollisionSensors.Runtime
                 Items.Remove(id);
                 OnItemRemoved((item));
                 UpdateDebug();
+                delCollisionExit?.Invoke();
             }
         }
 
