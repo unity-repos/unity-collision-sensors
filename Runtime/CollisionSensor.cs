@@ -33,6 +33,10 @@ namespace CollisionSensors.Runtime
             Items = new Dictionary<int, T>();
         }
 
+        protected virtual bool Reject(T item)
+        {
+            return false;
+        }
 
         protected virtual void OnItemAdded(T item)
         {
@@ -46,6 +50,11 @@ namespace CollisionSensors.Runtime
         {
             var item = other.GetComponentInParent<T>();
             if (item == null)
+            {
+                return;
+            }
+
+            if (Reject(item))
             {
                 return;
             }
@@ -65,6 +74,11 @@ namespace CollisionSensors.Runtime
         {
             var item = other.GetComponentInParent<T>();
             if (item == null)
+            {
+                return;
+            }
+
+            if (Reject(item))
             {
                 return;
             }
