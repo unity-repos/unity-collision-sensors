@@ -33,10 +33,11 @@ namespace CollisionSensors.Runtime
             Items = new Dictionary<int, T>();
         }
 
-        protected virtual bool RejectItem(T item)
+        protected virtual bool RejectItem(T other)
         {
             return false;
         }
+
         protected virtual bool RejectCollider(Collider other)
         {
             return false;
@@ -111,21 +112,31 @@ namespace CollisionSensors.Runtime
             if (Items.ContainsKey(id))
             {
                 Items.Remove(id);
+
+
                 OnItemRemoved((item));
-                UpdateDebug();
                 CallbackCollisionExit?.Invoke();
             }
+
+            UpdateDebug();
         }
 
-       
+
         private void UpdateDebug()
         {
 #if UNITY_EDITOR
 
+
             var sb = new StringBuilder();
             foreach (var kv in Items)
             {
-                sb.AppendLine(kv.Value.transform.name);
+                var v = kv.Value?.transform;
+                if (v == null)
+                {
+                    continue;
+                }
+
+                sb.AppendLine(v.name);
             }
 
             debugSensor = $"{sb}";
