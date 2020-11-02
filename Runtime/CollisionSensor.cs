@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -78,13 +79,12 @@ namespace CollisionSensors.Runtime
             if (!Items.ContainsKey(id))
             {
                 Items[id] = item;
+                Cleanup();
                 UpdateDebug();
-                
+
                 OnItemAdded(item);
                 CallbackCollisionEnter?.Invoke();
             }
-
-           
         }
 
         private void OnTriggerExit(Collider other)
@@ -114,13 +114,24 @@ namespace CollisionSensors.Runtime
             if (Items.ContainsKey(id))
             {
                 Items.Remove(id);
+                Cleanup();
 
                 UpdateDebug();
                 OnItemRemoved((item));
                 CallbackCollisionExit?.Invoke();
             }
+        }
 
-            
+        private void Cleanup()
+        {
+            var items = Items
+                .Where(t => t.Value == null)
+                .Select(t => t.Key);
+
+            foreach (var id in items)
+            {
+                Items.Remove(id);
+            }
         }
 
 
@@ -136,7 +147,7 @@ namespace CollisionSensors.Runtime
                 {
                     continue;
                 }
-                
+
                 var t = kv.Value.transform;
                 if (t == null)
                 {
