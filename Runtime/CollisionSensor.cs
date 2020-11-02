@@ -133,10 +133,12 @@ namespace CollisionSensors.Runtime
                 var v = kv.Value?.transform;
                 if (v == null)
                 {
-                    continue;
+                    sb.AppendLine($"{kv.Key}: null");
                 }
-
-                sb.AppendLine(v.name);
+                else
+                {
+                    sb.AppendLine(v.name);
+                }
             }
 
             debugSensor = $"{sb}";
