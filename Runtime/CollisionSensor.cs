@@ -78,11 +78,13 @@ namespace CollisionSensors.Runtime
             if (!Items.ContainsKey(id))
             {
                 Items[id] = item;
+                UpdateDebug();
+                
                 OnItemAdded(item);
                 CallbackCollisionEnter?.Invoke();
             }
 
-            UpdateDebug();
+           
         }
 
         private void OnTriggerExit(Collider other)
@@ -113,12 +115,12 @@ namespace CollisionSensors.Runtime
             {
                 Items.Remove(id);
 
-
+                UpdateDebug();
                 OnItemRemoved((item));
                 CallbackCollisionExit?.Invoke();
             }
 
-            UpdateDebug();
+            
         }
 
 
@@ -130,15 +132,18 @@ namespace CollisionSensors.Runtime
             var sb = new StringBuilder();
             foreach (var kv in Items)
             {
-                var v = kv.Value?.transform;
-                if (v == null)
+                if (kv.Value == null)
                 {
-                    sb.AppendLine($"{kv.Key}: null");
+                    continue;
                 }
-                else
+                
+                var t = kv.Value.transform;
+                if (t == null)
                 {
-                    sb.AppendLine(v.name);
+                    continue;
                 }
+
+                sb.AppendLine(t.name);
             }
 
             debugSensor = $"{sb}";
