@@ -126,7 +126,8 @@ namespace CollisionSensors.Runtime
         {
             var items = Items
                 .Where(t => t.Value == null)
-                .Select(t => t.Key);
+                .Select(t => t.Key)
+                .ToArray();
 
             foreach (var id in items)
             {
