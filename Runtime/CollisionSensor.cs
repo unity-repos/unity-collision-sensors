@@ -157,18 +157,25 @@ namespace CollisionSensors.Runtime
             var sb = new StringBuilder();
             foreach (var kv in Items)
             {
-                if (kv.Value == null)
+                try
                 {
-                    continue;
-                }
+                    if (kv.Value == null)
+                    {
+                        continue;
+                    }
 
-                var t = kv.Value.Item?.transform;
-                if (t == null)
+                    var t = kv.Value.Item?.transform;
+                    if (t == null)
+                    {
+                        continue;
+                    }
+
+                    sb.AppendLine(t.name);
+                }
+                catch
                 {
-                    continue;
+                    // ignored
                 }
-
-                sb.AppendLine(t.name);
             }
 
             debugSensor = $"{sb}";
