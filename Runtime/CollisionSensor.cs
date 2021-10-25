@@ -33,6 +33,12 @@ namespace CollisionSensors.Runtime
             _initialized = true;
             Items = new Dictionary<int, CollisionData<T>>();
         }
+        
+        public void Clear()
+        {
+            Items.Clear();
+            UpdateDebug();
+        }
 
         protected virtual bool RejectItem(T other)
         {
