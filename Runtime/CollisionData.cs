@@ -14,18 +14,14 @@ namespace CollisionSensors.Runtime
             Colliders = new HashSet<int>();
         }
 
-        public bool Add(int id)
+        public bool AddCollider(int id)
         {
-            int count = Count;
-            Colliders.Add(id);
-            return count == 0 && Count > 0;
+            return Colliders.Add(id);
         }
 
-        public bool Remove(int id)
+        public bool RemoveCollider(int id)
         {
-            int count = Count;
-            Colliders.Remove(id);
-            return count > 0 && Count == 0;
+            return Colliders.Remove(id);
         }
     }
 }

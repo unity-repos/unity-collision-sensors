@@ -9,19 +9,78 @@ namespace CollisionSensors.Runtime
     public class CollisionSensor<T> : MonoBehaviour, ICollisionSensor
         where T : MonoBehaviour
     {
-        public Action CallbackCollisionEnter { get; set; }
-        public Action CallbackCollisionExit { get; set; }
-        public int Count => Items.Count;
-        public Dictionary<int, CollisionData<T>> Items { get; set; }
-
-        [SerializeField] [TextArea] private string debugSensor;
+        [SerializeField] [TextArea(0,10)] private string debugSensor;
 
         private bool _initialized;
+        public Dictionary<int, CollisionData<T>> Items { get; set; }
 
         public void OnEnable()
         {
             Init();
         }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if (!TryGetItem(other, out var item))
+            {
+                return;
+            }
+
+            var gameObjectId = item.gameObject.GetInstanceID();
+            var colliderId = other.GetInstanceID();
+
+            if (!Items.TryGetValue(gameObjectId, out var collisionData))
+            {
+                collisionData = new CollisionData<T>
+                {
+                    Item = item,
+                };
+                Items[gameObjectId] = collisionData;
+            }
+
+
+            bool didAddItem = collisionData.AddCollider(colliderId);
+
+            Cleanup();
+            UpdateDebug();
+
+            if (didAddItem)
+            {
+                OnItemAdded(item);
+                CallbackCollisionEnter?.Invoke();
+            }
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            if (!TryGetItem(other, out var item))
+            {
+                return;
+            }
+
+            var gameObjectId = item.gameObject.GetInstanceID();
+            var colliderId = other.GetInstanceID();
+
+            if (!Items.ContainsKey(gameObjectId))
+            {
+                return;
+            }
+
+            var didRemoveItem = Items[gameObjectId].RemoveCollider(colliderId);
+
+            Cleanup();
+            UpdateDebug();
+
+            if (didRemoveItem)
+            {
+                OnItemRemoved(item);
+                CallbackCollisionExit?.Invoke();
+            }
+        }
+
+        public Action CallbackCollisionEnter { get; set; }
+        public Action CallbackCollisionExit { get; set; }
+        public int Count => Items.Count;
 
         public void Init()
         {
@@ -33,7 +92,7 @@ namespace CollisionSensors.Runtime
             _initialized = true;
             Items = new Dictionary<int, CollisionData<T>>();
         }
-        
+
         public void Clear()
         {
             Items.Clear();
@@ -56,62 +115,6 @@ namespace CollisionSensors.Runtime
 
         protected virtual void OnItemRemoved(T item)
         {
-        }
-
-        private void OnTriggerEnter(Collider other)
-        {
-            if (!TryGetItem(other, out var item))
-            {
-                return;
-            }
-
-            var id = item.gameObject.GetInstanceID();
-
-            if (!Items.ContainsKey(id))
-            {
-                if (!Items.ContainsKey(id))
-                {
-                    var d = new CollisionData<T>()
-                    {
-                        Item = item
-                    };
-                    Items.Add(id, d);
-                }
-
-                var data = Items[id];
-                bool uniqueAdd = data.Add(other.GetInstanceID());
-
-                Cleanup();
-                UpdateDebug();
-                if (uniqueAdd)
-                {
-                    OnItemAdded(item);
-                    CallbackCollisionEnter?.Invoke();
-                }
-            }
-        }
-
-        private void OnTriggerExit(Collider other)
-        {
-            if (!TryGetItem(other, out var item))
-            {
-                return;
-            }
-
-            var id = item.gameObject.GetInstanceID();
-            if (Items.ContainsKey(id))
-            {
-                var empty = Items[id].Remove(other.GetInstanceID());
-
-                Cleanup();
-                UpdateDebug();
-                
-                if (empty)
-                {
-                    OnItemRemoved(item);
-                    CallbackCollisionExit?.Invoke();
-                }
-            }
         }
 
         private bool TryGetItem(Collider other, out T item)
@@ -158,25 +161,28 @@ namespace CollisionSensors.Runtime
         private void UpdateDebug()
         {
 #if UNITY_EDITOR
-
-
             var sb = new StringBuilder();
             foreach (var kv in Items)
             {
                 try
                 {
-                    if (kv.Value == null)
+                    var collisionData = kv.Value;
+                    if (collisionData == null)
                     {
                         continue;
                     }
 
-                    var t = kv.Value.Item?.transform;
+                    var t = collisionData.Item?.transform;
                     if (t == null)
                     {
                         continue;
                     }
 
                     sb.AppendLine(t.name);
+                    foreach (var id in collisionData.Colliders)
+                    {
+                        sb.AppendLine($"\t{id}");
+                    }
                 }
                 catch
                 {
