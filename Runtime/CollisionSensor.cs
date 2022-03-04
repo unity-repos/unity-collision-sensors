@@ -9,7 +9,7 @@ namespace CollisionSensors.Runtime
     public class CollisionSensor<T> : MonoBehaviour, ICollisionSensor
         where T : MonoBehaviour
     {
-        [SerializeField] [TextArea(0,10)] private string debugSensor;
+        [SerializeField] [TextArea(0, 10)] private string debugSensor;
 
         private bool _initialized;
         public Dictionary<int, CollisionData<T>> Items { get; set; }
@@ -39,7 +39,7 @@ namespace CollisionSensors.Runtime
             }
 
 
-            bool didAddItem = collisionData.AddCollider(colliderId);
+            bool didAddItem = collisionData.AddCollider(colliderId, other);
 
             Cleanup();
             UpdateDebug();
@@ -66,7 +66,8 @@ namespace CollisionSensors.Runtime
                 return;
             }
 
-            var didRemoveItem = Items[gameObjectId].RemoveCollider(colliderId);
+            var collisionData = Items[gameObjectId];
+            var didRemoveItem = collisionData.RemoveCollider(colliderId);
 
             Cleanup();
             UpdateDebug();
@@ -146,15 +147,31 @@ namespace CollisionSensors.Runtime
 
         private void Cleanup()
         {
-            var items = Items
-                .Where(t => t.Value.Count == 0)
-                .Select(t => t.Key)
-                .ToArray();
-
-            foreach (var id in items)
+            var toRemove = new List<int>();
+            foreach (var kv in Items)
             {
-                Items.Remove(id);
+                var id = kv.Key;
+                var data = kv.Value;
+
+                var collidersToRemove = new List<int>();
+                foreach (var kvColliders in data.Colliders)
+                {
+                    var c = kvColliders.Value;
+                    if (c == null || c.enabled == false)
+                    {
+                        var colliderId = kvColliders.Key;
+                        collidersToRemove.Add(colliderId);
+                    }
+                }
+
+                collidersToRemove.ForEach(t => data.Colliders.Remove(t));
+                if (data.Colliders.Count == 0)
+                {
+                    toRemove.Add(id);
+                }
             }
+
+            toRemove.ForEach(t => Items.Remove(t));
         }
 
 

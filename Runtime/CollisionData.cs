@@ -6,17 +6,17 @@ namespace CollisionSensors.Runtime
     public class CollisionData<T>
     {
         public T Item { get; set; }
-        public HashSet<int> Colliders { get; }
+        public Dictionary<int, Collider> Colliders { get; }
         public int Count => Colliders.Count;
 
         public CollisionData()
         {
-            Colliders = new HashSet<int>();
+            Colliders = new Dictionary<int, Collider>();
         }
 
-        public bool AddCollider(int id)
+        public bool AddCollider(int id, Collider collider)
         {
-            return Colliders.Add(id);
+            return Colliders[id] = collider;
         }
 
         public bool RemoveCollider(int id)
